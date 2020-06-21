@@ -1,0 +1,26 @@
+#!/bin/bash
+ls -al
+pwd
+echo "downloading terraform.."
+wget https://releases.hashicorp.com/terraform/0.12.26/terraform_0.12.26_linux_amd64.zip
+unzip terraform_0.12.26_linux_amd64.zip && chmod 777 terraform
+rm -r terraform_0.12.26_linux_amd64.zip && cp terraform  cat /var/lib/jenkins/softwares/
+
+terraform version
+echo .
+echo .
+echo "downloading packer.."
+wget https://releases.hashicorp.com/packer/1.6.0/packer_1.6.0_linux_amd64.zip
+unzip packer_1.6.0_linux_amd64.zip && chmod 777 packer
+rm -r packer_1.6.0_linux_amd64.zip && cp packer  cat /var/lib/jenkins/softwares/packer
+packer version
+echo "Running the packer script now..!!"
+echo .
+echo .
+packer build packer.json
+echo .
+echo .
+terraform init
+terraform apply --var-file test.tfvars -var 'aws_access_key=AKIAWPGZFNAFKATV32P5' -var 'aws_secret_key=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' --auto-approve
+echo "Infra Built Sucessfully....!!!"
+docker -H 10.1.1.220 run --rm -dit --name nginx1 --hostname nginx1 -p 8000:80 nginx:latest
